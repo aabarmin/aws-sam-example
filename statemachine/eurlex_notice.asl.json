@@ -1,0 +1,37 @@
+{
+    "Comment": "State macthing for the app that downloads NOTICE documents from EurLex",
+    "StartAt": "IngestAlerter",
+    "States": {
+        "IngestAlerter": {
+            "Comment": "Get updates from EurLex for particular date",
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+                "FunctionName": "${IngestAlerterArn}"
+            },
+            "Next": "CheckNoticesLoaded"
+        },
+        "CheckNoticesLoaded": {
+            "Comment": "Check evety notice in the list if it was loaded before",
+            "Type": "Map",
+            "InputPath": "$.items.*",
+            "OutputPath": "$",
+            "MaxConcurrency": 0,
+            "Iterator": {
+                "StartAt": "IngestAlertFilter",
+                "States": {
+                    "IngestAlertFilter": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::lambda:invoke",
+                        "Parameters": {
+                            "FunctionName": "${IngestAlertFilterArn}"
+                        },
+                        "End": true
+                    }
+                }
+            },
+            "ResultPath": "$",
+            "End": true
+        }
+    }
+}

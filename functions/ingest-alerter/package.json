@@ -1,0 +1,16 @@
+{
+  "name": "ingest-alerter",
+  "version": "1.0.0",
+  "description": "Get documents create during the day on EurLex",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Aleksandr Barmin",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "xmldom": "^0.4.0",
+    "xpath": "^0.0.32"
+  }
+}

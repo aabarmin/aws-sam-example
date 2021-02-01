@@ -1,0 +1,24 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Ingest Alert Filter",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/functions/ingest-alert-filter/app.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Run Ingest Alerter",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/functions/ingest-alerter/debugger.js"
+        }
+    ]
+}
