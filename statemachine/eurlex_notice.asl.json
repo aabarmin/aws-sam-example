@@ -7,15 +7,16 @@
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
-                "FunctionName": "${IngestAlerterArn}"
+                "FunctionName": "${IngestAlerterArn}",
+                "Payload.$": "$"
             },
             "Next": "CheckNoticesLoaded"
         },
         "CheckNoticesLoaded": {
             "Comment": "Check evety notice in the list if it was loaded before",
             "Type": "Map",
-            "InputPath": "$.items.*",
-            "OutputPath": "$",
+            "InputPath": "$.Payload",
+            "ItemsPath": "$.items",
             "MaxConcurrency": 0,
             "Iterator": {
                 "StartAt": "IngestAlertFilter",
@@ -24,13 +25,42 @@
                         "Type": "Task",
                         "Resource": "arn:aws:states:::lambda:invoke",
                         "Parameters": {
-                            "FunctionName": "${IngestAlertFilterArn}"
+                            "FunctionName": "${IngestAlertFilterArn}",
+                            "Payload.$": "$"
                         },
-                        "End": true
+                        "OutputPath": "$.Payload",
+                        "Next": "SkipDownloadedNotices"
+                    },
+                    "SkipDownloadedNotices": {
+                        "Comment": "Skips or downloads a Notice for the given alert",
+                        "Type": "Choice",
+                        "Choices": [
+                            {
+                                "Variable": "$.exists",
+                                "BooleanEquals": false,
+                                "Next": "DownloadNoticeFromEurlex"
+                            },
+                            {
+                                "Variable": "$.exists",
+                                "BooleanEquals": true,
+                                "Next": "EndProcessing"
+                            }
+                        ]
+                    },
+                    "DownloadNoticeFromEurlex": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::lambda:invoke",
+                        "Parameters": {
+                            "FunctionName": "${IngestMetadataDownloaderArn}",
+                            "Payload.$": "$"
+                        },
+                        "Next": "EndProcessing"
+                    },
+                    "EndProcessing": {
+                        "Type": "Succeed"
                     }
                 }
             },
-            "ResultPath": "$",
             "End": true
         }
     }

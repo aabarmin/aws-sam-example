@@ -4,9 +4,11 @@ const DOMParser = require('xmldom').DOMParser;
 
 exports.lambdaHandler = async (event, context) => {
     return new Promise((resolve, reject) => {
+        const { startDate, endDate } = event
+        const url = `https://publications.europa.eu/webapi/notification/ingestion?startDate=${startDate}&endDate=${endDate}&type=CREATE&wemiClasses=work`
         const params = {
             method: 'get',
-            url: 'https://publications.europa.eu/webapi/notification/ingestion?startDate=2020-10-01&endDate=2020-10-02&type=CREATE&wemiClasses=work',
+            url: url,
             headers: {
                 'Accept-Language': 'en_EN',
                 'Accept': '*/*'
