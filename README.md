@@ -130,7 +130,7 @@ Orchestration of lambda functions is performed by Step Functions and the state m
 
 In common, it implements the following flow:
 
-![State Machine](./docs/step-functions-workflow.png)
+![State Machine](./docs/step-functions-workflow.png | width=200)
 
 If you take a look into the State Machine definition you'll see that it doesn't have hardcoded function names, instead it uses template params. 
 
