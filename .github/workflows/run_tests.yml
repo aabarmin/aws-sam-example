@@ -23,7 +23,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r ./tests/requirements.txt
         pip install -r ./functions/ingest_alert_filter/requirements.txt
-        pip install -r ./functions/ingest_metadata_downloaders/requirements.txt
+        pip install -r ./functions/ingest_metadata_downloader/requirements.txt
 
     - name: Build
       run: |
