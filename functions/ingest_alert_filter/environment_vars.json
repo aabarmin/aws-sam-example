@@ -1,0 +1,5 @@
+{
+    "Parameters": {
+        "INGEST_DYNAMODB_TABLE_NAME": "eurlex_documents"
+    }
+}

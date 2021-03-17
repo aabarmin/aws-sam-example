@@ -54,7 +54,7 @@ Resources:
   IngestAlertFilter:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions/ingest-alert-filter/
+      CodeUri: functions/ingest_alert_filter/
       Handler: app.lambda_handler
       Runtime: python3.8
       Environment:
@@ -69,7 +69,7 @@ Resources:
   IngestMetadataDownloader:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions/ingest-metadata-downloader/
+      CodeUri: functions/ingest_metadata_downloader/
       Handler: app.lambda_handler
       Runtime: python3.8
       Environment:

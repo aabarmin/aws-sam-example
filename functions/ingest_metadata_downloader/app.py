@@ -1,36 +1,41 @@
 import requests
 import boto3
+import sys
 from datetime import datetime
-import os
+from functions.common.environment import get_environment_variable_value
+
 
 def lambda_handler(event, context):
     print(f'Debug: event: {event}')
 
-    cellarId = event['cellarId']
-    print(f'Downloading notice with cellar {cellarId}')
+    cellar_id = event['cellarId']
+    print(f'Downloading notice with cellar {cellar_id}')
 
     try:
-        url = f'https://eur-lex.europa.eu/download-notice.html?legalContentId=cellar:{cellarId}&noticeType=branch&callingUrl=&lng=EN'
+        url = f'https://eur-lex.europa.eu/download-notice.html?legalContentId=cellar:{cellar_id}&noticeType=branch&callingUrl=&lng=EN'
         response = requests.get(url)
-        if (response.status_code == 200):
+        if response.status_code == 200:
             print('Notice was downloaded successfully')
-            upload_content(response.content, cellarId)
-            save_record(cellarId)
+            upload_content(response.content, cellar_id)
+            save_record(cellar_id)
         
         event['downloaded'] = True
     except Exception:
+        error = sys.exc_info()[2]
+        print(f'Error while downloading {error}')
+        event['error'] = error
         event['downloaded'] = False
 
     return event
 
 
-def upload_content(content: str, cellarId: str):
+def upload_content(content: str, cellar_id: str):
     """
     This function downloads the notice from EurLex and uploads it to S3
     """
     s3_client = boto3.client('s3')
-    object_key = f'notice_{cellarId}.xml'
-    bucket_name = get_s3_bucke_name()
+    object_key = f'notice_{cellar_id}.xml'
+    bucket_name = get_s3_bucket_name()
     existing_objects = s3_client.list_objects(Bucket=bucket_name, Prefix=object_key)
     
     if ('Contents' in existing_objects):
@@ -43,7 +48,8 @@ def upload_content(content: str, cellarId: str):
     upload_response = s3_client.put_object(Bucket=bucket_name, Key=object_key, Body=content)
     print(f'Object {object_key} was uploaded to bucket {bucket_name}')
 
-def save_record(cellarId: str):
+
+def save_record(cellar_id: str):
     """
     This function creates a record in the DynamoDB about a downloaded notice
     """
@@ -52,19 +58,21 @@ def save_record(cellarId: str):
     current_date = datetime.now()
     created_item = dynamo_client.put_item(TableName=dynamo_table, Item={
         'cellarId': {
-            'S': cellarId
+            'S': cellar_id
         },
         'created': {
             'S': current_date.strftime('%m/%d/%y %H:%M:%S')
         }
     })
-    print(f'Item with cellar {cellarId} created')
+    print(f'Item with cellar {cellar_id} created')
 
-def get_s3_bucke_name() -> str: 
+
+def get_s3_bucket_name() -> str:
     """
     Returns the name of bucket to store downloaded notices
     """
     return get_environment_variable_value('INGEST_S3_BUCKET_NAME', 'abarmins3bucket')
+
 
 def get_dyname_table_name() -> str:
     """
@@ -72,20 +80,6 @@ def get_dyname_table_name() -> str:
     """
     return get_environment_variable_value('INGEST_DYNAMODB_TABLE_NAME', 'eurlex_documents')
 
-def get_environment_variable_value(variable_name: str, default_value: str) -> str:
-    """
-    Returns an environment variable's value or default value if the app is started locally
-    """
-    value = os.environ.get(variable_name)
-
-    if value is None:
-        if __name__ == '__main__':
-            print(f'Getting default value for env variable {variable_name}')
-            value = default_value
-        else:
-            raise EnvironmentError(f'No environment variable {variable_name}')
-    
-    return value
     
 
 if __name__ == '__main__':
