@@ -1,16 +1,15 @@
-import unittest
 import os
 from unittest.mock import patch, call, MagicMock
 from unittest.mock import Mock
 from functions.ingest_alert_filter import app
 
 
-class TestIngestAlertFilter(unittest.TestCase):
+class TestIngestAlertFilter():
     dynamo_mock = Mock()
     dynamo_table = Mock()
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         os.environ.setdefault('INGEST_DYNAMODB_TABLE_NAME', 'test_table')
 
     def test_handle_unknown(self):

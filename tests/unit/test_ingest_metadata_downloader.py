@@ -10,7 +10,7 @@ class TestIngestMetadataDownloader(unittest.TestCase):
     dynamo_client = Mock()
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         os.environ.setdefault('INGEST_S3_BUCKET_NAME', 'test_bucket')
         os.environ.setdefault('INGEST_DYNAMODB_TABLE_NAME', 'test_table')
 
