@@ -6,6 +6,12 @@ Description: >
   State Machine to download Notice documents from EurLex
 
 Resources:
+  ApplicationRestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: EurlexApplicationRestApi
+      StageName: prod
+
   EurlexLoadNoticesStateMachine:
     Type: AWS::Serverless::StateMachine
     Properties:
@@ -14,6 +20,13 @@ Resources:
         IngestAlerterArn: !GetAtt IngestAlerter.Arn
         IngestAlertFilterArn: !GetAtt IngestAlertFilter.Arn
         IngestMetadataDownloaderArn: !GetAtt IngestMetadataDownloader.Arn
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Method: post
+            Path: /starter
+            RestApiId: !Ref ApplicationRestApi
       Policies:
         - LambdaInvokePolicy:
             FunctionName: !Ref IngestAlerter
@@ -89,6 +102,6 @@ Resources:
       - NoticesS3Bucket
 
 Outputs:
-  EurlexLoadNoticesStateMachineArn:
-    Description: "ARN of the state machine that downloads Notices"
-    Value: !Ref EurlexLoadNoticesStateMachine
+  EurlexLoadNoticesStarter:
+    Description: "URL to kick-off the state machine, send a POST request here"
+    Value: !Sub "https://${ApplicationRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/starter"

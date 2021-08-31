@@ -1,6 +1,5 @@
 import boto3
-from functions.common.environment import get_environment_variable_value
-
+import os
 
 def lambda_handler(event, context):
     # extracting cellarId from event
@@ -32,6 +31,22 @@ def get_dynamo_table_name() -> str:
     Returns the name of the DynamoDB table to store information about downloaded notices
     """
     return get_environment_variable_value('INGEST_DYNAMODB_TABLE_NAME', 'eurlex_documents')
+
+
+def get_environment_variable_value(variable_name: str, default_value: str) -> str:
+    """
+    Returns an environment variable's value or default value if the app is started locally
+    """
+    value = os.environ.get(variable_name)
+
+    if value is None:
+        if __name__ == '__main__':
+            print(f'Getting default value for env variable {variable_name}')
+            value = default_value
+        else:
+            raise EnvironmentError(f'No environment variable {variable_name}')
+
+    return value
 
 
 if __name__ == '__main__':
